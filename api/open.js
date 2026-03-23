@@ -1,14 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY
 )
 
 export default async function handler(req, res) {
   try {
-    const url = new URL(req.url, `http://${req.headers.host}`)
-    const unique_id = url.searchParams.get("id")
+    const unique_id = req.query.id  // simpler than using URL()
 
     if (unique_id) {
       await supabase
@@ -18,17 +17,17 @@ export default async function handler(req, res) {
         ])
     }
 
-    // invisible tracking image
-    const gif = Buffer.from(
+    // invisible 1x1 GIF
+    const gifBuffer = Buffer.from(
       "R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==",
       "base64"
     )
 
     res.setHeader("Content-Type", "image/gif")
-    res.status(200).send(gif)
+    res.send(gifBuffer)
 
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res.status(500).send("Error")
   }
-      }
+}
